@@ -1,0 +1,51 @@
+@use "./functions";
+
+// Color Defintions
+$primary: #d91e49;
+$secondary: #4f4f4f;
+$dark-grey: #393939;
+$white: #ffffff;
+$textColor: #939597;
+$button-color: #f4f4f5;
+$button-bg: #393939;
+$red-color: #dd355b;
+
+// Font Family
+$font-family-primary: "Myriad Pro" -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+	Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+
+// Font Weight
+$font-weight-extra-thin: 100;
+$font-weight-thin: 200;
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semi-bold: 600;
+$font-weight-bold: 700;
+$font-weight-extra-bold: 800;
+$font-weight-ultra-bold: 900;
+
+// Font Size
+$font-size-small: functions.px-Rem(14);
+$font-size-normal: functions.px-Rem(16);
+$font-size-lead: functions.px-Rem(18);
+
+// Headings
+$heading-font-family: $font-family-primary;
+$heading-font-weight: $font-weight-bold;
+$heading-line-height: 100%;
+$heading-text-color: #343434;
+
+// Body
+$body-font-family: $font-family-primary;
+$body-font-size: $font-size-normal;
+$body-font-weight: $font-weight-regular;
+$body-line-height: 1.5;
+$body-text-color: #6c757d;
+$body-text-color-light: lighten($body-text-color, 10);
+
+// Border Radius
+$border-radius-sm: 5px;
+$border-radius-md: 10px;
+$border-radius-lg: 20px;
+$border-radius-round: 50%;

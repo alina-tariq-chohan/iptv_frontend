@@ -1,0 +1,31 @@
+@use "../base/variables";
+
+// Myriad Pro REGULAR
+@font-face {
+	font-family: "Myriad Pro";
+	font-style: normal;
+	font-weight: variables.$font-weight-regular;
+	font-stretch: 100%;
+	font-display: swap;
+	src: url("../../assets/fonts/myriad-pro/myriad-pro-regular.otf") format("opentype");
+}
+
+// Myriad Pro SEMIBOLD
+@font-face {
+	font-family: "Myriad Pro";
+	font-style: normal;
+	font-weight: variables.$font-weight-semi-bold;
+	font-stretch: 100%;
+	font-display: swap;
+	src: url("../../assets/fonts/myriad-pro/myriad-pro-semibold.otf") format("opentype");
+}
+
+// Myriad Pro BOLD
+@font-face {
+	font-family: "Myriad Pro";
+	font-style: normal;
+	font-weight: variables.$font-weight-bold;
+	font-stretch: 100%;
+	font-display: swap;
+	src: url("../../assets/fonts/myriad-pro/myriad-pro-bold.otf") format("opentype");
+}

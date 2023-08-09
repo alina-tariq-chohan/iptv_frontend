@@ -1,0 +1,106 @@
+@use "./base/variables";
+
+// Confirmation popup
+.ant-popover-inner {
+	background-color: variables.$white;
+	border-radius: 5px;
+	.ant-popover-message {
+		span {
+			color: variables.$dark-grey;
+		}
+	}
+	.ant-popover-buttons {
+		button {
+			&:nth-child(2) {
+				background-color: variables.$dark-grey;
+				border-color: variables.$dark-grey;
+			}
+		}
+	}
+}
+
+.layout-container {
+	overflow: hidden;
+}
+
+.category-group-tags {
+	background: #fff !important;
+	color: variables.$textColor;
+	box-shadow: none;
+	border: none !important;
+}
+
+.add-btn {
+	color: variables.$button-color;
+	font-size: 1rem;
+	background-color: variables.$button-bg;
+	padding: 8px 16px;
+	height: auto;
+	text-align: center;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	border: none;
+	border-radius: 4px;
+}
+
+.plus-icon {
+	height: 1rem;
+	width: 1rem;
+	color: #fff !important;
+	margin-right: 10px;
+}
+
+.text-base {
+	color: variables.$textColor !important;
+}
+
+.category-tag .ant-collapse-content {
+	margin-left: 2rem !important;
+}
+
+.sidebar-new-project {
+	margin-top: 200px !important;
+	justify-content: center;
+	max-width: 140px;
+}
+
+.sidebar-new-project.ant-menu-item {
+	margin-left: 12% !important;
+}
+
+.sidebar-new-project .ant-menu-title-content {
+	flex: none !important;
+}
+
+.sidebar-new-project .ant-menu-item {
+	width: 120px !important;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.back-arrow {
+	width: 25px;
+	object-fit: contain;
+	cursor: pointer;
+	margin-right: 30px;
+}
+
+.edit-cancel-btn {
+	margin-left: 8px;
+	cursor: pointer;
+	&:hover {
+		color: #1890ff;
+	}
+}
+
+.ant-popover .ant-popover-buttons {
+	display: flex;
+	flex-direction: row-reverse !important;
+}
+
+.ant-popover .ant-popover-buttons .ant-btn-sm {
+	font-size: 13px;
+}
