@@ -1,54 +1,44 @@
 import "./App.css"
 import axios from "axios"
 import React from "react"
-import { Typography, AppBar, Toolbar, TextField, Button as MuiButton } from "@material-ui/core"
-// import "antd/dist/antd.css"
+import { TextField, Button as MuiButton } from "@material-ui/core"
 import { Table, Button as AntDButton } from "antd"
 
 function Genre() {
-	const [books, setBooks] = React.useState([])
+	const [data, setData] = React.useState([])
+
 	React.useEffect(() => {
-		// This is to get the list of books from the backend.
-		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/genre")
-			.then((response) => {
-				// Once we get the list of books, we need to set the state of the component with the list of books.
-				setBooks(response.data)
-			})
-			.catch((error) => {})
+		axios.get(process.env.REACT_APP_API_BASE_URL + "/genre").then((response) => {
+			setData(response.data)
+		})
 	}, [])
 
-	const onSubmit = async (e) => {
+	const onSubmit = async (event) => {
 		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
-		e.preventDefault()
+		event.preventDefault()
 		// This is body of the request, we can send it as a json object
-		const book = {
-			name: e.target.name.value,
+		const payload = {
+			name: event.target.name.value,
 		}
 		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/genre", book)
+			.post(process.env.REACT_APP_API_BASE_URL + "/genre", payload)
 			.then(async (res) => {
-				// Once the book is added, we need to get the list of books
-				const bookList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
-				// And render the list of books in the UI. I am reassigning the state with the new list of books
-				setBooks(bookList.data)
+				const genres = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+				setData(genres.data)
 			})
 			.catch((err) => {})
 			.finally(() => {
 				// This is to clear the form after submitting.
-				e.target.name.value = ""
+				event.target.name.value = ""
 			})
 	}
 
 	const deleteBook = async (id) => {
-		// This is to delete the book from the list.
 		axios
 			.delete(`${process.env.REACT_APP_API_BASE_URL}/genre/${id}`)
 			.then(async (res) => {
-				// Once the book is deleted, we need to get the list of books
-				const bookList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
-				// And render the list of books in the UI. I am reassigning the state with the new list of books
-				setBooks(bookList.data)
+				const genres = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+				setData(genres.data)
 			})
 			.catch((err) => {})
 	}
@@ -83,7 +73,7 @@ function Genre() {
 	return (
 		<div>
 			<div style={{ marginTop: "30px" }} />
-			<Table columns={columns} dataSource={books} />
+			<Table columns={columns} dataSource={data} />
 
 			<form onSubmit={onSubmit}>
 				<TextField

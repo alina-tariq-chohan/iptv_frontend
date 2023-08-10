@@ -62,10 +62,10 @@ function Series() {
 	const deleteById = async (id) => {
 		// This is to delete the book from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/genre/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/series/${id}`)
 			.then(async (res) => {
 				// Once the book is deleted, we need to get the list of books
-				const bookList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+				const bookList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/series")
 				// And render the list of books in the UI. I am reassigning the state with the new list of books
 				setData(bookList.data)
 			})

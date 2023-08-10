@@ -39,16 +39,14 @@ function Season() {
 		const payload = {
 			name: e.target.name.value,
 			description: e.target.description.value,
-			series: e.target.series.value.split(",").filter((i) => i),
+			series_id: e.target.series.value,
 		}
 		axios
 			.post(process.env.REACT_APP_API_BASE_URL + "/season", payload)
 			.then(async (res) => {
 				// Once the book is added, we need to get the list of books
 				const bookList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/season")
-				// And render the list of books in the UI. I am reassigning the state with the new list of books
-				const a = bookList.data.map((i) => (i.series = i.series.name.join(", ")))
-				setData(a)
+				setData(bookList.data)
 			})
 			.catch((err) => {})
 			.finally(() => {
@@ -62,10 +60,10 @@ function Season() {
 	const deleteById = async (id) => {
 		// This is to delete the book from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/series/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/season/${id}`)
 			.then(async (res) => {
 				// Once the book is deleted, we need to get the list of books
-				const bookList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/series")
+				const bookList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/season")
 				// And render the list of books in the UI. I am reassigning the state with the new list of books
 				setData(bookList.data)
 			})
@@ -86,18 +84,8 @@ function Season() {
 		{
 			title: "Series",
 			dataIndex: "series",
-			key: "series",
-			render: (_, { series }) => (
-				<>
-					{series?.map((tag) => {
-						return (
-							<Tag color={"volcano"} key={tag._id}>
-								{tag.name}
-							</Tag>
-						)
-					})}
-				</>
-			),
+			key: "series_id",
+			render: (_, season) => <>{season.series_id.name}</>,
 		},
 		{
 			title: "Action",
@@ -142,26 +130,10 @@ function Season() {
 					name="description"
 					required
 				/>
-				{/* <input
-					// onChange={}
-					// accept={}
-					// className={}
-					id="file-upload"
-					type="file"
-				/>
-				<input
-					// onChange={}
-					// accept={}
-					// className={}
-					id="file-upload"
-					type="file"
-				/> */}
-				<InputLabel>Select Series</InputLabel>
 				<Select
 					name="series"
 					value={selectedValue}
 					onChange={handleChange}
-					multiple
 					style={{ width: 200 }} // Adjust the width value as needed
 				>
 					<MenuItem value="" disabled>
