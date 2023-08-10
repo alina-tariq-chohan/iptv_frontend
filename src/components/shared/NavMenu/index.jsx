@@ -61,6 +61,13 @@ const NavMenu = ({ collapsed }) => {
 				>
 					All Series
 				</Menu.Item>
+				<Menu.Item
+					icon={<Projects width={20} />}
+					onClick={() => navigate("/season")}
+					key="/season"
+				>
+					All Seasons
+				</Menu.Item>
 				{/* <Menu.Item
 					icon={<Projects width={20} />}
 					onClick={() => navigate("/episode")}
@@ -83,13 +90,7 @@ const NavMenu = ({ collapsed }) => {
 				>
 					All Gerne-Series
 				</Menu.Item>
-				<Menu.Item
-					icon={<Projects width={20} />}
-					onClick={() => navigate("/season")}
-					key="/season"
-				>
-					All Seasons
-				</Menu.Item>
+				
 
 				<Menu.Item
 					icon={<Projects width={20} />}

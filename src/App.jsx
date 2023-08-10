@@ -10,6 +10,7 @@ import Register from "pages/Register"
 import PageNotFound from "components/pages/NotFound/PageNotFound"
 import Genre from "pages/Genre"
 import Series from "pages/Series"
+import Season from "pages/Season"
 
 function App() {
 	React.useEffect(() => {
@@ -49,6 +50,7 @@ function App() {
 					/>
 					<Route path="/genre" element={layoutWrapper(<Genre />)} />
 					<Route path="/series" element={layoutWrapper(<Series />)} />
+					<Route path="/season" element={layoutWrapper(<Season />)} />
 					<Route path="*" element={layoutWrapper(<PageNotFound />)} />
 				</Routes>
 			</BrowserRouter>
