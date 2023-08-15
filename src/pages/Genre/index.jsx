@@ -5,7 +5,7 @@ import { TextField, Button as MuiButton } from "@material-ui/core"
 import { Table, Row, Col, Button as AntDButton } from "antd"
 import Logout from "components/shared/Logout"
 // import { TopHeaderLeftSide } from "pages/Add/styles"
-// import { HomeWrapper, ActionButtonWrapper, SearchInput, ProjectStatus } from "./styles"
+// import { HomeWrapper, ActionButtonWrapper, SearchInput, ProjectStatus } from "./styles"git push -u
 
 function Genre() {
 	const [data, setData] = React.useState([])
