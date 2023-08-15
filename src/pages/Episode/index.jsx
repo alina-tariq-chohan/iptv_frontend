@@ -1,35 +1,34 @@
 import "./App.css"
 import axios from "axios"
-import { TextField, Button as MuiButton, InputLabel, Select, MenuItem } from "@material-ui/core"
+import { TextField, Button as MuiButton, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Button as AntDButton, Tag } from "antd"
+import { Table, Button as AntDButton } from "antd"
 import React, { useState } from "react"
 
-function Series() {
+function Episode() {
 	const [selectedValue, setSelectedValue] = useState([""])
-
 	const handleChange = (event) => {
 		setSelectedValue(event.target.value)
 	}
-
 	const [data, setData] = React.useState([])
-	const [genres, setGenre] = React.useState([])
+	const [season, setSeason] = React.useState([])
 	React.useEffect(() => {
-		// This is to get the list of s from the backend.
+		// This is to get the list of books from the backend.
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+			.get(process.env.REACT_APP_API_BASE_URL + "/season")
 			.then((response) => {
-				setGenre(response.data)
+				// Once we get the list of books, we need to set the state of the component with the list of books.
+				setSeason(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/series")
+			.get(process.env.REACT_APP_API_BASE_URL + "/episode")
 			.then((response) => {
+				// Once we get the list of books, we need to set the state of the component with the list of books.
 				setData(response.data)
 			})
 			.catch((error) => {})
 	}, [])
-
 	const onSubmit = async (e) => {
 		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
 		e.preventDefault()
@@ -37,39 +36,35 @@ function Series() {
 		const payload = {
 			name: e.target.name.value,
 			description: e.target.description.value,
-			genres: e.target.genres.value.split(",").filter((i) => i),
+			season_id: e.target.season.value,
 		}
 		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/series", payload)
+			.post(process.env.REACT_APP_API_BASE_URL + "/episode", payload)
 			.then(async (res) => {
-				// Once the series is added, we need to get the list of series
-				const seriesList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/series")
-				// And render the list of series in the UI. I am reassigning the state with the new list of series
-				const a = seriesList.data.map((i) => (i.genres = i.genres.name.join(", ")))
-				setData(a)
+				// Once the book is added, we need to get the list of books
+				const episodeList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/episode")
+				setData(episodeList.data)
 			})
 			.catch((err) => {})
 			.finally(() => {
 				// This is to clear the form after submitting.
 				e.target.name.value = ""
 				e.target.description.value = ""
-				e.target.genres.value = ""
+				e.target.season.value = ""
 			})
 	}
-
 	const deleteById = async (id) => {
-		// This is to delete the series from the list.
+		// This is to delete the book from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/series/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/episode/${id}`)
 			.then(async (res) => {
-				// Once the series is deleted, we need to get the list of series
-				const seriesList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/series")
-				// And render the list of series in the UI. I am reassigning the state with the new list of series
-				setData(seriesList.data)
+				// Once the book is deleted, we need to get the list of books
+				const episodeList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/episode")
+				// And render the list of books in the UI. I am reassigning the state with the new list of books
+				setData(episodeList.data)
 			})
 			.catch((err) => {})
 	}
-
 	const columns = [
 		{
 			title: "Name",
@@ -82,20 +77,14 @@ function Series() {
 			key: "description",
 		},
 		{
-			title: "Genres",
-			dataIndex: "genres",
-			key: "genres",
-			render: (_, { genres }) => (
-				<>
-					{genres?.map((tag) => {
-						return (
-							<Tag color={"volcano"} key={tag._id}>
-								{tag.name}
-							</Tag>
-						)
-					})}
-				</>
-			),
+			title: "Seasons",
+			dataIndex: "season",
+			key: "season_id",
+			// render: (_, episode) => <>{episode.season_id && episode.season_id.name}</>,
+			render: (_, episode) => {
+				const seasonObject = season.find((s) => s._id === episode.season_id)
+				return seasonObject ? seasonObject.name : "N/A"
+			},
 		},
 		{
 			title: "Action",
@@ -107,7 +96,6 @@ function Series() {
 			),
 		},
 	]
-
 	const customStyle = {
 		margin: "5px",
 		marginTop: "10px",
@@ -117,12 +105,10 @@ function Series() {
 		borderRadius: "5px",
 		fontSize: "16px",
 	}
-
 	return (
 		<div>
 			<div style={{ marginTop: "30px" }} />
 			<Table columns={columns} dataSource={data} />
-
 			<form onSubmit={onSubmit}>
 				<TextField
 					style={customStyle}
@@ -140,38 +126,21 @@ function Series() {
 					name="description"
 					required
 				/>
-				{/* <input
-					// onChange={}
-					// accept={}
-					// className={}
-					id="file-upload"
-					type="file"
-				/>
-				<input
-					// onChange={}
-					// accept={}
-					// className={}
-					id="file-upload"
-					type="file"
-				/> */}
-
 				<Select
-					name="genres"
+					name="season"
 					value={selectedValue}
 					onChange={handleChange}
-					multiple
 					style={{ width: 200 }} // Adjust the width value as needed
 				>
 					<MenuItem value="" disabled>
-						Select Genre
+						Select Season
 					</MenuItem>
-					{genres.map((genre, index) => (
-						<MenuItem key={index} value={genre?._id}>
-							{genre.name}
+					{season.map((season, index) => (
+						<MenuItem key={index} value={season._id}>
+							{season.name}
 						</MenuItem>
 					))}
 				</Select>
-
 				<MuiButton style={customStyle} variant="contained" color="primary" type="submit">
 					save
 				</MuiButton>
@@ -180,4 +149,4 @@ function Series() {
 	)
 }
 
-export default Series
+export default Episode

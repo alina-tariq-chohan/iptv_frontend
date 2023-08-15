@@ -11,6 +11,8 @@ import PageNotFound from "components/pages/NotFound/PageNotFound"
 import Genre from "pages/Genre"
 import Series from "pages/Series"
 import Season from "pages/Season"
+import Episode from "pages/Episode"
+import Stream from "pages/Stream"
 
 function App() {
 	React.useEffect(() => {
@@ -48,9 +50,12 @@ function App() {
 							</LoginRedirect>
 						}
 					/>
+					<Route path="/" element={layoutWrapper(<Genre />)} />
 					<Route path="/genre" element={layoutWrapper(<Genre />)} />
 					<Route path="/series" element={layoutWrapper(<Series />)} />
 					<Route path="/season" element={layoutWrapper(<Season />)} />
+					<Route path="/episode" element={layoutWrapper(<Episode />)} />
+					<Route path="/stream" element={layoutWrapper(<Stream />)} />
 					<Route path="*" element={layoutWrapper(<PageNotFound />)} />
 				</Routes>
 			</BrowserRouter>

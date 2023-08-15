@@ -68,7 +68,7 @@ const NavMenu = ({ collapsed }) => {
 				>
 					All Seasons
 				</Menu.Item>
-				{/* <Menu.Item
+				<Menu.Item
 					icon={<Projects width={20} />}
 					onClick={() => navigate("/episode")}
 					key="/episode"
@@ -82,6 +82,8 @@ const NavMenu = ({ collapsed }) => {
 				>
 					All Streams
 				</Menu.Item>
+				{/* 
+				
 
 				<Menu.Item
 					icon={<Projects width={20} />}

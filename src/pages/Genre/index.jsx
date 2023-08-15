@@ -2,10 +2,14 @@ import "./App.css"
 import axios from "axios"
 import React from "react"
 import { TextField, Button as MuiButton } from "@material-ui/core"
-import { Table, Button as AntDButton } from "antd"
+import { Table, Row, Col, Button as AntDButton } from "antd"
+import Logout from "components/shared/Logout"
+// import { TopHeaderLeftSide } from "pages/Add/styles"
+// import { HomeWrapper, ActionButtonWrapper, SearchInput, ProjectStatus } from "./styles"
 
 function Genre() {
 	const [data, setData] = React.useState([])
+	const [editingId, setEditingId] = React.useState(null)
 
 	React.useEffect(() => {
 		axios.get(process.env.REACT_APP_API_BASE_URL + "/genre").then((response) => {
@@ -13,27 +17,35 @@ function Genre() {
 		})
 	}, [])
 
-	const onSubmit = async (event) => {
-		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
-		event.preventDefault()
-		// This is body of the request, we can send it as a json object
+	const onSubmit = async (e) => {
+		e.preventDefault()
 		const payload = {
-			name: event.target.name.value,
+			name: e.target.name.value,
 		}
-		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/genre", payload)
-			.then(async (res) => {
+
+		if (editingId) {
+			try {
+				await axios.put(`${process.env.REACT_APP_API_BASE_URL}/genre/${editingId}`, payload)
 				const genres = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
 				setData(genres.data)
-			})
-			.catch((err) => {})
-			.finally(() => {
-				// This is to clear the form after submitting.
-				event.target.name.value = ""
-			})
+				setEditingId(null)
+				e.target.name.value = "" // Clear the form
+			} catch (error) {
+				console.error("Error updating genre:", error)
+			}
+		} else {
+			try {
+				await axios.post(process.env.REACT_APP_API_BASE_URL + "/genre", payload)
+				const genres = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+				setData(genres.data)
+				e.target.name.value = "" // Clear the form
+			} catch (error) {
+				console.error("Error creating genre:", error)
+			}
+		}
 	}
 
-	const deleteBook = async (id) => {
+	const deleteGenre = async (id) => {
 		axios
 			.delete(`${process.env.REACT_APP_API_BASE_URL}/genre/${id}`)
 			.then(async (res) => {
@@ -41,6 +53,14 @@ function Genre() {
 				setData(genres.data)
 			})
 			.catch((err) => {})
+	}
+
+	const editGenre = (id) => {
+		const genreToEdit = data.find((genre) => genre._id === id)
+		if (genreToEdit) {
+			setEditingId(id)
+			document.getElementsByName("name")[0].value = genreToEdit.name
+		}
 	}
 
 	const columns = [
@@ -53,9 +73,18 @@ function Genre() {
 			title: "Action",
 			key: "action",
 			render: (text, record) => (
-				<AntDButton color="primary" onClick={() => deleteBook(record._id)}>
-					Delete
-				</AntDButton>
+				<>
+					<AntDButton
+						color="primary"
+						onClick={() => editGenre(record._id)}
+						style={{ marginRight: "8px" }}
+					>
+						Edit
+					</AntDButton>
+					<AntDButton color="primary" onClick={() => deleteGenre(record._id)}>
+						Delete
+					</AntDButton>
+				</>
 			),
 		},
 	]
@@ -72,6 +101,15 @@ function Genre() {
 
 	return (
 		<div>
+			<Row justify="end">
+				<Col style={{ marginRight: 30 }}>
+					{/* <TopHeaderLeftSide> */}
+					<div>
+						<Logout />
+					</div>
+					{/* </TopHeaderLeftSide> */}
+				</Col>
+			</Row>
 			<div style={{ marginTop: "30px" }} />
 			<Table columns={columns} dataSource={data} />
 
@@ -85,7 +123,7 @@ function Genre() {
 					required
 				/>
 				<MuiButton style={customStyle} variant="contained" color="primary" type="submit">
-					save
+					{editingId ? "Update" : "Save"}
 				</MuiButton>
 			</form>
 		</div>
