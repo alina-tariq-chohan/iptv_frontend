@@ -10,9 +10,14 @@ import Logout from "components/shared/Logout"
 function Genre() {
 	const [data, setData] = React.useState([])
 	const [editingId, setEditingId] = React.useState(null)
+	const headers = {
+		headers: {
+			Authorization: `bearer ${localStorage.getItem("token")}`,
+		},
+	}
 
 	React.useEffect(() => {
-		axios.get(process.env.REACT_APP_API_BASE_URL + "/genre").then((response) => {
+		axios.get(process.env.REACT_APP_API_BASE_URL + "/genre", headers).then((response) => {
 			setData(response.data)
 		})
 	}, [])
@@ -25,8 +30,15 @@ function Genre() {
 
 		if (editingId) {
 			try {
-				await axios.put(`${process.env.REACT_APP_API_BASE_URL}/genre/${editingId}`, payload)
-				const genres = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+				await axios.patch(
+					`${process.env.REACT_APP_API_BASE_URL}/genre/${editingId}`,
+					payload,
+					headers,
+				)
+				const genres = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/genre",
+					headers
+				)
 				setData(genres.data)
 				setEditingId(null)
 				e.target.name.value = "" // Clear the form
@@ -35,8 +47,11 @@ function Genre() {
 			}
 		} else {
 			try {
-				await axios.post(process.env.REACT_APP_API_BASE_URL + "/genre", payload)
-				const genres = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+				await axios.post(process.env.REACT_APP_API_BASE_URL + "/genre", headers, payload)
+				const genres = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/genre",
+					headers
+				)
 				setData(genres.data)
 				e.target.name.value = "" // Clear the form
 			} catch (error) {
@@ -47,9 +62,12 @@ function Genre() {
 
 	const deleteGenre = async (id) => {
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/genre/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/genre/${id}`, headers)
 			.then(async (res) => {
-				const genres = await axios.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+				const genres = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/genre",
+					headers
+				)
 				setData(genres.data)
 			})
 			.catch((err) => {})

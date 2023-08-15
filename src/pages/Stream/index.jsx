@@ -12,15 +12,20 @@ function Stream() {
 	}
 	const [data, setData] = React.useState([])
 	const [episode, setEpisode] = React.useState([])
+	const headers = {
+		headers: {
+			Authorization: `bearer ${localStorage.getItem("token")}`,
+		},
+	}
 	React.useEffect(() => {
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/episode")
+			.get(process.env.REACT_APP_API_BASE_URL + "/episode", headers)
 			.then((response) => {
 				setEpisode(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/stream")
+			.get(process.env.REACT_APP_API_BASE_URL + "/stream", headers)
 			.then((response) => {
 				setData(response.data)
 			})
@@ -34,10 +39,13 @@ function Stream() {
 			episode_id: e.target.episode.value,
 		}
 		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/stream", payload)
+			.post(process.env.REACT_APP_API_BASE_URL + "/stream", payload, headers)
 			.then(async (res) => {
 				// Once the book is added, we need to get the list of books
-				const streamList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/stream")
+				const streamList = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/stream",
+					headers
+				)
 				setData(streamList.data)
 			})
 			.catch((err) => {})
@@ -49,10 +57,13 @@ function Stream() {
 	const deleteById = async (id) => {
 		// This is to delete the book from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/stream/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/stream/${id}`, headers)
 			.then(async (res) => {
 				// Once the book is deleted, we need to get the list of books
-				const streamList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/stream")
+				const streamList = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/stream",
+					headers
+				)
 				// And render the list of books in the UI. I am reassigning the state with the new list of books
 				setData(streamList.data)
 			})
