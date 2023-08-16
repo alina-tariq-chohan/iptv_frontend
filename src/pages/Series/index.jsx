@@ -7,6 +7,9 @@ import React, { useState } from "react"
 
 function Series() {
 	const [selectedValue, setSelectedValue] = useState([""])
+	const [name, setName] = useState("")
+	const [description, setDescription] = useState("")
+	const [genreId, setGenreId] = useState("")
 
 	const handleChange = (event) => {
 		setSelectedValue(event.target.value)
@@ -113,9 +116,9 @@ function Series() {
 		const seriesToEdit = data.find((series) => series._id === id)
 		if (seriesToEdit) {
 			setEditingId(id)
-			document.getElementsByName("name")[0].value = seriesToEdit.name
-			document.getElementsByName("description")[0].value = seriesToEdit.description
-			document.getElementsByName("genres")[0].value = seriesToEdit.genres
+			setName(seriesToEdit.name)
+			setDescription(seriesToEdit.description)
+			setSelectedValue(seriesToEdit.genres)
 		}
 	}
 
@@ -186,6 +189,8 @@ function Series() {
 					label="Name"
 					variant="outlined"
 					name="name"
+					value={name}
+					onChange={(e) => setName(e.target.name.value)}
 					required
 				/>
 				<TextField
@@ -194,6 +199,8 @@ function Series() {
 					label="Description"
 					variant="outlined"
 					name="description"
+					value={description}
+					onChange={(e) => setDescription(e.target.description)}
 					required
 				/>
 				{/* <input

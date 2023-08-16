@@ -10,7 +10,7 @@ import Logout from "components/shared/Logout"
 function Genre() {
 	const [data, setData] = React.useState([])
 	const [editingId, setEditingId] = React.useState(null)
-	const [name, setName] = React.useState('')
+	const [name, setName] = React.useState("")
 	const headers = {
 		headers: {
 			Authorization: `bearer ${localStorage.getItem("token")}`,
@@ -140,6 +140,7 @@ function Genre() {
 					variant="outlined"
 					name="name"
 					value={name}
+					onChange={(e) => setName(e.target.name.value)}
 					required
 				/>
 				<MuiButton style={customStyle} variant="contained" color="primary" type="submit">

@@ -8,9 +8,9 @@ import React, { useState } from "react"
 function Season() {
 	const [selectedValue, setSelectedValue] = useState([""])
 	const [editingId, setEditingId] = React.useState(null)
-	const [name, setName] = React.useState('')
-	const [description, setDescription] = React.useState('')
-	const [seriesId, setSeriesId] = React.useState('')
+	const [name, setName] = React.useState("")
+	const [description, setDescription] = React.useState("")
+	const [seriesId, setSeriesId] = React.useState("")
 
 	const headers = {
 		headers: {
@@ -172,6 +172,7 @@ function Season() {
 					variant="outlined"
 					name="name"
 					value={name}
+					onChange={(e) => setName(e.target.name.value)}
 					required
 				/>
 				<TextField
@@ -181,6 +182,7 @@ function Season() {
 					variant="outlined"
 					name="description"
 					value={description}
+					onChange={(e) => setDescription(e.target.description.value)}
 					required
 				/>
 				<Select
