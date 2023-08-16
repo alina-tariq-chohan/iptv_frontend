@@ -48,7 +48,7 @@ function Series() {
 		const payload = {
 			name: e.target.name.value,
 			description: e.target.description.value,
-			genre_id: e.target.genres.value.split(",").filter((i) => i),
+			genres: e.target.genres.value.split(",").filter((i) => i),
 		}
 		if (editingId) {
 			try {
@@ -65,7 +65,7 @@ function Series() {
 				setEditingId(null)
 				e.target.name.value = "" // Clear the form
 				e.target.description.value = ""
-				e.target.genres.value = ""
+				setSelectedValue([""])
 			} catch (error) {
 				console.error("Error updating series:", error)
 			}
@@ -118,7 +118,7 @@ function Series() {
 			setEditingId(id)
 			setName(seriesToEdit.name)
 			setDescription(seriesToEdit.description)
-			setSelectedValue(seriesToEdit.genre_id)
+			setSelectedValue(seriesToEdit.genres.map((i) => i._id))
 		}
 	}
 
@@ -134,7 +134,7 @@ function Series() {
 		{
 			title: "Genres",
 			dataIndex: "genres",
-			key: "genre_id",
+			key: "genres",
 			render: (_, { genres }) => (
 				<>
 					{genres?.map((tag) => {

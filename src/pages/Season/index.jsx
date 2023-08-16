@@ -182,7 +182,7 @@ function Season() {
 					variant="outlined"
 					name="description"
 					value={description}
-					onChange={(e) => setDescription(e.target.description.value)}
+					onChange={(e) => setDescription(e.target.description)}
 					required
 				/>
 				<Select
