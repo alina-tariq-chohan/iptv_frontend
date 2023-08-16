@@ -8,6 +8,10 @@ import React, { useState } from "react"
 function Season() {
 	const [selectedValue, setSelectedValue] = useState([""])
 	const [editingId, setEditingId] = React.useState(null)
+	const [name, setName] = React.useState('')
+	const [description, setDescription] = React.useState('')
+	const [seriesId, setSeriesId] = React.useState('')
+
 	const headers = {
 		headers: {
 			Authorization: `bearer ${localStorage.getItem("token")}`,
@@ -101,9 +105,9 @@ function Season() {
 		const seasonToEdit = data.find((season) => season._id === id)
 		if (seasonToEdit) {
 			setEditingId(id)
-			document.getElementsByName("name")[0].value = seasonToEdit.name
-			document.getElementsByName("description")[0].value = seasonToEdit.description
-			document.getElementsByName("series")[0].value = seasonToEdit.series
+			setName(seasonToEdit.name)
+			setDescription(seasonToEdit.description)
+			setSelectedValue(seasonToEdit.series_id)
 		}
 	}
 
@@ -167,6 +171,7 @@ function Season() {
 					label="Name"
 					variant="outlined"
 					name="name"
+					value={name}
 					required
 				/>
 				<TextField
@@ -175,6 +180,7 @@ function Season() {
 					label="Description"
 					variant="outlined"
 					name="description"
+					value={description}
 					required
 				/>
 				<Select

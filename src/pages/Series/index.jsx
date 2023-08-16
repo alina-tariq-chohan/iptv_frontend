@@ -123,12 +123,10 @@ function Series() {
 		{
 			title: "Name",
 			dataIndex: "name",
-			key: "name",
 		},
 		{
 			title: "Description",
 			dataIndex: "description",
-			key: "description",
 		},
 		{
 			title: "Genres",
