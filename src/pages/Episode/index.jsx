@@ -2,27 +2,34 @@ import "./App.css"
 import axios from "axios"
 import { TextField, Button as MuiButton, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Button as AntDButton } from "antd"
+import { Table, Tag, Button as AntDButton } from "antd"
 import React, { useState } from "react"
 
 function Episode() {
 	const [selectedValue, setSelectedValue] = useState([""])
+	const [editingId, setEditingId] = React.useState(null)
+
 	const handleChange = (event) => {
 		setSelectedValue(event.target.value)
+	}
+	const headers = {
+		headers: {
+			Authorization: `bearer ${localStorage.getItem("token")}`,
+		},
 	}
 	const [data, setData] = React.useState([])
 	const [season, setSeason] = React.useState([])
 	React.useEffect(() => {
 		// This is to get the list of books from the backend.
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/season")
+			.get(process.env.REACT_APP_API_BASE_URL + "/season", headers)
 			.then((response) => {
 				// Once we get the list of books, we need to set the state of the component with the list of books.
 				setSeason(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/episode")
+			.get(process.env.REACT_APP_API_BASE_URL + "/episode", headers)
 			.then((response) => {
 				// Once we get the list of books, we need to set the state of the component with the list of books.
 				setData(response.data)
@@ -39,10 +46,13 @@ function Episode() {
 			season_id: e.target.season.value,
 		}
 		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/episode", payload)
+			.post(process.env.REACT_APP_API_BASE_URL + "/episode", payload, headers)
 			.then(async (res) => {
 				// Once the book is added, we need to get the list of books
-				const episodeList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/episode")
+				const episodeList = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/episode",
+					headers
+				)
 				setData(episodeList.data)
 			})
 			.catch((err) => {})
@@ -56,15 +66,29 @@ function Episode() {
 	const deleteById = async (id) => {
 		// This is to delete the book from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/episode/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/episode/${id}`, headers)
 			.then(async (res) => {
 				// Once the book is deleted, we need to get the list of books
-				const episodeList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/episode")
+				const episodeList = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/episode",
+					headers
+				)
 				// And render the list of books in the UI. I am reassigning the state with the new list of books
 				setData(episodeList.data)
 			})
 			.catch((err) => {})
 	}
+
+	const editEpisode = (id) => {
+		const seasonToEdit = data.find((season) => season._id === id)
+		if (seasonToEdit) {
+			setEditingId(id)
+			document.getElementsByName("name")[0].value = seasonToEdit.name
+			document.getElementsByName("description")[0].value = seasonToEdit.description
+			document.getElementsByName("name")[0].value = seasonToEdit.name
+		}
+	}
+
 	const columns = [
 		{
 			title: "Name",
@@ -83,16 +107,26 @@ function Episode() {
 			// render: (_, episode) => <>{episode.season_id && episode.season_id.name}</>,
 			render: (_, episode) => {
 				const seasonObject = season.find((s) => s._id === episode.season_id)
-				return seasonObject ? seasonObject.name : "N/A"
+				const tagColor = seasonObject ? "volcano" : "defaultColor"
+				return <Tag color={tagColor}>{seasonObject ? seasonObject.name : "N/A"}</Tag>
 			},
 		},
 		{
 			title: "Action",
 			key: "action",
 			render: (text, record) => (
-				<AntDButton color="primary" onClick={() => deleteById(record._id)}>
-					Delete
-				</AntDButton>
+				<>
+					<AntDButton
+						color="primary"
+						onClick={() => editEpisode(record._id)}
+						style={{ marginRight: "8px" }}
+					>
+						Edit
+					</AntDButton>
+					<AntDButton color="primary" onClick={() => deleteById(record._id)}>
+						Delete
+					</AntDButton>
+				</>
 			),
 		},
 	]

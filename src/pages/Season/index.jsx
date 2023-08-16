@@ -2,33 +2,37 @@ import "./App.css"
 import axios from "axios"
 import { TextField, Button as MuiButton, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Button as AntDButton } from "antd"
+import { Table, Tag, Button as AntDButton } from "antd"
 import React, { useState } from "react"
 
 function Season() {
 	const [selectedValue, setSelectedValue] = useState([""])
+	const [editingId, setEditingId] = React.useState(null)
+	const headers = {
+		headers: {
+			Authorization: `bearer ${localStorage.getItem("token")}`,
+		},
+	}
 	const handleChange = (event) => {
 		setSelectedValue(event.target.value)
 	}
 	const [data, setData] = React.useState([])
 	const [series, setSeries] = React.useState([])
 	React.useEffect(() => {
-		// This is to get the list of books from the backend.
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/series")
+			.get(process.env.REACT_APP_API_BASE_URL + "/series", headers)
 			.then((response) => {
-				// Once we get the list of books, we need to set the state of the component with the list of books.
 				setSeries(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/season")
+			.get(process.env.REACT_APP_API_BASE_URL + "/season", headers)
 			.then((response) => {
-				// Once we get the list of books, we need to set the state of the component with the list of books.
 				setData(response.data)
 			})
 			.catch((error) => {})
 	}, [])
+
 	const onSubmit = async (e) => {
 		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
 		e.preventDefault()
@@ -38,33 +42,71 @@ function Season() {
 			description: e.target.description.value,
 			series_id: e.target.series.value,
 		}
-		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/season", payload)
-			.then(async (res) => {
-				// Once the book is added, we need to get the list of books
-				const seasonList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/season")
-				setData(seasonList.data)
-			})
-			.catch((err) => {})
-			.finally(() => {
-				// This is to clear the form after submitting.
-				e.target.name.value = ""
+		if (editingId) {
+			try {
+				await axios.patch(
+					`${process.env.REACT_APP_API_BASE_URL}/season/${editingId}`,
+					payload,
+					headers
+				)
+				const seasons = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/season",
+					headers
+				)
+				setData(seasons.data)
+				setEditingId(null)
+				e.target.name.value = "" // Clear the form
 				e.target.description.value = ""
 				e.target.series.value = ""
-			})
+			} catch (error) {
+				console.error("Error updating seasons:", error)
+			}
+		} else {
+			try {
+				await axios
+					.post(process.env.REACT_APP_API_BASE_URL + "/season", payload, headers)
+					.then(async (res) => {
+						const seasonList = await axios.get(
+							process.env.REACT_APP_API_BASE_URL + "/season",
+							headers
+						)
+						setData(seasonList.data)
+					})
+					.catch((err) => {})
+					.finally(() => {
+						// This is to clear the form after submitting.
+						e.target.name.value = ""
+						e.target.description.value = ""
+						e.target.series.value = ""
+					})
+			} catch (error) {
+				console.error("Error creating season:", error)
+			}
+		}
 	}
 	const deleteById = async (id) => {
-		// This is to delete the book from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/season/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/season/${id}`, headers)
 			.then(async (res) => {
-				// Once the book is deleted, we need to get the list of books
-				const seasonList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/season")
-				// And render the list of books in the UI. I am reassigning the state with the new list of books
+				const seasonList = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/season",
+					headers
+				)
 				setData(seasonList.data)
 			})
 			.catch((err) => {})
 	}
+
+	const editSeason = (id) => {
+		const seasonToEdit = data.find((season) => season._id === id)
+		if (seasonToEdit) {
+			setEditingId(id)
+			document.getElementsByName("name")[0].value = seasonToEdit.name
+			document.getElementsByName("description")[0].value = seasonToEdit.description
+			document.getElementsByName("series")[0].value = seasonToEdit.series
+		}
+	}
+
 	const columns = [
 		{
 			title: "Name",
@@ -80,19 +122,28 @@ function Season() {
 			title: "Series",
 			dataIndex: "series",
 			key: "series_id",
-			// render: (_, season) => <>{season.series_id && season.series_id.name}</>,
 			render: (_, season) => {
 				const seriesObject = series.find((s) => s._id === season.series_id)
-				return seriesObject ? seriesObject.name : "N/A"
+				const tagColor = seriesObject ? "volcano" : "defaultColor"
+				return <Tag color={tagColor}>{seriesObject ? seriesObject.name : "N/A"}</Tag>
 			},
 		},
 		{
 			title: "Action",
 			key: "action",
 			render: (text, record) => (
-				<AntDButton color="primary" onClick={() => deleteById(record._id)}>
-					Delete
-				</AntDButton>
+				<>
+					<AntDButton
+						color="primary"
+						onClick={() => editSeason(record._id)}
+						style={{ marginRight: "8px" }}
+					>
+						Edit
+					</AntDButton>
+					<AntDButton color="primary" onClick={() => deleteById(record._id)}>
+						Delete
+					</AntDButton>
+				</>
 			),
 		},
 	]
@@ -142,7 +193,7 @@ function Season() {
 					))}
 				</Select>
 				<MuiButton style={customStyle} variant="contained" color="primary" type="submit">
-					save
+					{editingId ? "Update" : "Save"}
 				</MuiButton>
 			</form>
 		</div>

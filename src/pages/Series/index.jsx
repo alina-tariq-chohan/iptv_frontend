@@ -14,16 +14,24 @@ function Series() {
 
 	const [data, setData] = React.useState([])
 	const [genres, setGenre] = React.useState([])
+	const [editingId, setEditingId] = React.useState(null)
+
+	const headers = {
+		headers: {
+			Authorization: `bearer ${localStorage.getItem("token")}`,
+		},
+	}
+
 	React.useEffect(() => {
 		// This is to get the list of s from the backend.
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/genre")
+			.get(process.env.REACT_APP_API_BASE_URL + "/genre", headers)
 			.then((response) => {
 				setGenre(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/series")
+			.get(process.env.REACT_APP_API_BASE_URL + "/series", headers)
 			.then((response) => {
 				setData(response.data)
 			})
@@ -39,35 +47,76 @@ function Series() {
 			description: e.target.description.value,
 			genres: e.target.genres.value.split(",").filter((i) => i),
 		}
-		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/series", payload)
-			.then(async (res) => {
-				// Once the series is added, we need to get the list of series
-				const seriesList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/series")
-				// And render the list of series in the UI. I am reassigning the state with the new list of series
-				const a = seriesList.data.map((i) => (i.genres = i.genres.name.join(", ")))
-				setData(a)
-			})
-			.catch((err) => {})
-			.finally(() => {
-				// This is to clear the form after submitting.
-				e.target.name.value = ""
+		if (editingId) {
+			try {
+				await axios.patch(
+					`${process.env.REACT_APP_API_BASE_URL}/series/${editingId}`,
+					payload,
+					headers
+				)
+				const series = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/series",
+					headers
+				)
+				setData(series.data)
+				setEditingId(null)
+				e.target.name.value = "" // Clear the form
 				e.target.description.value = ""
 				e.target.genres.value = ""
-			})
+			} catch (error) {
+				console.error("Error updating series:", error)
+			}
+		} else {
+			try {
+				await axios
+					.post(process.env.REACT_APP_API_BASE_URL + "/series", payload, headers)
+					.then(async (res) => {
+						// Once the series is added, we need to get the list of series
+						const seriesList = await axios.get(
+							process.env.REACT_APP_API_BASE_URL + "/series",
+							headers
+						)
+						// And render the list of series in the UI. I am reassigning the state with the new list of series
+						const a = seriesList.data.map((i) => (i.genres = i.genres.name.join(", ")))
+						setData(a)
+					})
+					.catch((err) => {})
+					.finally(() => {
+						// This is to clear the form after submitting.
+						e.target.name.value = ""
+						e.target.description.value = ""
+						e.target.genres.value = ""
+					})
+			} catch (error) {
+				console.error("Error creating genre:", error)
+			}
+		}
 	}
 
-	const deleteById = async (id) => {
+	const deleteSeries = async (id) => {
 		// This is to delete the series from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/series/${id}`)
+			.delete(`${process.env.REACT_APP_API_BASE_URL}/series/${id}`, headers)
 			.then(async (res) => {
 				// Once the series is deleted, we need to get the list of series
-				const seriesList = await axios.get(process.env.REACT_APP_API_BASE_URL + "/series")
+				const seriesList = await axios.get(
+					process.env.REACT_APP_API_BASE_URL + "/series",
+					headers
+				)
 				// And render the list of series in the UI. I am reassigning the state with the new list of series
 				setData(seriesList.data)
 			})
 			.catch((err) => {})
+	}
+
+	const editSeries = (id) => {
+		const seriesToEdit = data.find((series) => series._id === id)
+		if (seriesToEdit) {
+			setEditingId(id)
+			document.getElementsByName("name")[0].value = seriesToEdit.name
+			document.getElementsByName("description")[0].value = seriesToEdit.description
+			document.getElementsByName("genres")[0].value = seriesToEdit.genres
+		}
 	}
 
 	const columns = [
@@ -101,9 +150,18 @@ function Series() {
 			title: "Action",
 			key: "action",
 			render: (text, record) => (
-				<AntDButton color="primary" onClick={() => deleteById(record._id)}>
-					Delete
-				</AntDButton>
+				<>
+					<AntDButton
+						color="primary"
+						onClick={() => editSeries(record._id)}
+						style={{ marginRight: "8px" }}
+					>
+						Edit
+					</AntDButton>
+					<AntDButton color="primary" onClick={() => deleteSeries(record._id)}>
+						Delete
+					</AntDButton>
+				</>
 			),
 		},
 	]
@@ -173,7 +231,7 @@ function Series() {
 				</Select>
 
 				<MuiButton style={customStyle} variant="contained" color="primary" type="submit">
-					save
+					{editingId ? "Update" : "Save"}
 				</MuiButton>
 			</form>
 		</div>

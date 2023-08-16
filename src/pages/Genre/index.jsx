@@ -33,7 +33,7 @@ function Genre() {
 				await axios.patch(
 					`${process.env.REACT_APP_API_BASE_URL}/genre/${editingId}`,
 					payload,
-					headers,
+					headers
 				)
 				const genres = await axios.get(
 					process.env.REACT_APP_API_BASE_URL + "/genre",
@@ -47,7 +47,7 @@ function Genre() {
 			}
 		} else {
 			try {
-				await axios.post(process.env.REACT_APP_API_BASE_URL + "/genre", headers, payload)
+				await axios.post(process.env.REACT_APP_API_BASE_URL + "/genre", payload, headers)
 				const genres = await axios.get(
 					process.env.REACT_APP_API_BASE_URL + "/genre",
 					headers
