@@ -2,11 +2,13 @@ import "./App.css"
 import axios from "axios"
 import { Button as MuiButton, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Button as AntDButton } from "antd"
+import { Table, Tag, Button as AntDButton } from "antd"
 import React, { useState } from "react"
 
 function Stream() {
 	const [selectedValue, setSelectedValue] = useState([""])
+	const [editingId, setEditingId] = React.useState(null)
+
 	const handleChange = (event) => {
 		setSelectedValue(event.target.value)
 	}
@@ -69,24 +71,42 @@ function Stream() {
 			})
 			.catch((err) => {})
 	}
+
+	const editStream = (id) => {
+		const streamToEdit = data.find((stream) => stream._id === id)
+		if (streamToEdit) {
+			setEditingId(id)
+			setSelectedValue(streamToEdit.episode_id)
+		}
+	}
+
 	const columns = [
 		{
 			title: "Episodes",
 			dataIndex: "episode",
 			key: "episode_id",
-			// render: (_, stream) => <>{stream.episode_id && stream.episode_id.name}</>,
 			render: (_, stream) => {
 				const episodeObject = episode.find((s) => s._id === stream.episode_id)
-				return episodeObject ? episodeObject.name : "N/A"
+				const tagColor = episodeObject ? "volcano" : "defaultColor"
+				return <Tag color={tagColor}>{episodeObject ? episodeObject.name : "N/A"}</Tag>
 			},
 		},
 		{
 			title: "Action",
 			key: "action",
 			render: (text, record) => (
-				<AntDButton color="primary" onClick={() => deleteById(record._id)}>
-					Delete
-				</AntDButton>
+				<>
+					<AntDButton
+						color="primary"
+						onClick={() => editStream(record._id)}
+						style={{ marginRight: "8px" }}
+					>
+						Edit
+					</AntDButton>
+					<AntDButton color="primary" onClick={() => deleteById(record._id)}>
+						Delete
+					</AntDButton>
+				</>
 			),
 		},
 	]
@@ -120,7 +140,7 @@ function Stream() {
 					))}
 				</Select>
 				<MuiButton style={customStyle} variant="contained" color="primary" type="submit">
-					save
+					{editingId ? "Update" : "Save"}
 				</MuiButton>
 			</form>
 		</div>

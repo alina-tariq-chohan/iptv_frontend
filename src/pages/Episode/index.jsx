@@ -8,6 +8,9 @@ import React, { useState } from "react"
 function Episode() {
 	const [selectedValue, setSelectedValue] = useState([""])
 	const [editingId, setEditingId] = React.useState(null)
+	const [name, setName] = React.useState("")
+	const [description, setDescription] = React.useState("")
+	const [seasonId, setSeasonId] = React.useState("")
 
 	const handleChange = (event) => {
 		setSelectedValue(event.target.value)
@@ -45,23 +48,49 @@ function Episode() {
 			description: e.target.description.value,
 			season_id: e.target.season.value,
 		}
-		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/episode", payload, headers)
-			.then(async (res) => {
-				// Once the book is added, we need to get the list of books
-				const episodeList = await axios.get(
+
+		if (editingId) {
+			try {
+				await axios.patch(
+					`${process.env.REACT_APP_API_BASE_URL}/episode/${editingId}`,
+					payload,
+					headers
+				)
+				const episodes = await axios.get(
 					process.env.REACT_APP_API_BASE_URL + "/episode",
 					headers
 				)
-				setData(episodeList.data)
-			})
-			.catch((err) => {})
-			.finally(() => {
-				// This is to clear the form after submitting.
-				e.target.name.value = ""
+				setData(episodes.data)
+				setEditingId(null)
+				e.target.name.value = "" // Clear the form
 				e.target.description.value = ""
 				e.target.season.value = ""
-			})
+			} catch (error) {
+				console.error("Error updating episode:", error)
+			}
+		} else {
+			try {
+				await axios
+					.post(process.env.REACT_APP_API_BASE_URL + "/episode", payload, headers)
+					.then(async (res) => {
+						// Once the book is added, we need to get the list of books
+						const episodeList = await axios.get(
+							process.env.REACT_APP_API_BASE_URL + "/episode",
+							headers
+						)
+						setData(episodeList.data)
+					})
+					.catch((err) => {})
+					.finally(() => {
+						// This is to clear the form after submitting.
+						e.target.name.value = ""
+						e.target.description.value = ""
+						e.target.season.value = ""
+					})
+			} catch (error) {
+				console.error("Error creating episode:", error)
+			}
+		}
 	}
 	const deleteById = async (id) => {
 		// This is to delete the book from the list.
@@ -80,12 +109,12 @@ function Episode() {
 	}
 
 	const editEpisode = (id) => {
-		const seasonToEdit = data.find((season) => season._id === id)
-		if (seasonToEdit) {
+		const episodeToEdit = data.find((episode) => episode._id === id)
+		if (episodeToEdit) {
 			setEditingId(id)
-			document.getElementsByName("name")[0].value = seasonToEdit.name
-			document.getElementsByName("description")[0].value = seasonToEdit.description
-			document.getElementsByName("name")[0].value = seasonToEdit.name
+			setName(episodeToEdit.name)
+			setDescription(episodeToEdit.description)
+			setSelectedValue(episodeToEdit.episode_id)
 		}
 	}
 
@@ -104,7 +133,6 @@ function Episode() {
 			title: "Seasons",
 			dataIndex: "season",
 			key: "season_id",
-			// render: (_, episode) => <>{episode.season_id && episode.season_id.name}</>,
 			render: (_, episode) => {
 				const seasonObject = season.find((s) => s._id === episode.season_id)
 				const tagColor = seasonObject ? "volcano" : "defaultColor"
@@ -150,6 +178,8 @@ function Episode() {
 					label="Name"
 					variant="outlined"
 					name="name"
+					value={name}
+					onChange={(e) => setName(e.target.name.value)}
 					required
 				/>
 				<TextField
@@ -158,6 +188,8 @@ function Episode() {
 					label="Description"
 					variant="outlined"
 					name="description"
+					value={description}
+					onChange={(e) => setDescription(e.target.description.value)}
 					required
 				/>
 				<Select

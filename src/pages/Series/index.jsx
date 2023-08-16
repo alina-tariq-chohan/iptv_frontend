@@ -48,7 +48,7 @@ function Series() {
 		const payload = {
 			name: e.target.name.value,
 			description: e.target.description.value,
-			genres: e.target.genres.value.split(",").filter((i) => i),
+			genre_id: e.target.genres.value.split(",").filter((i) => i),
 		}
 		if (editingId) {
 			try {
@@ -118,7 +118,7 @@ function Series() {
 			setEditingId(id)
 			setName(seriesToEdit.name)
 			setDescription(seriesToEdit.description)
-			setSelectedValue(seriesToEdit.genres)
+			setSelectedValue(seriesToEdit.genre_id)
 		}
 	}
 
@@ -134,7 +134,7 @@ function Series() {
 		{
 			title: "Genres",
 			dataIndex: "genres",
-			key: "genres",
+			key: "genre_id",
 			render: (_, { genres }) => (
 				<>
 					{genres?.map((tag) => {
