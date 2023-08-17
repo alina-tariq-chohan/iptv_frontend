@@ -22,76 +22,47 @@ function Stream() {
 			Authorization: `bearer ${localStorage.getItem("token")}`,
 		},
 	}
+	const apiUrl = process.env.REACT_APP_API_BASE_URL
+
 	React.useEffect(() => {
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/episode", headers)
+			.get(`${apiUrl}/episode`, headers)
 			.then((response) => {
 				setEpisode(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/stream", headers)
+			.get(`${apiUrl}/stream`, headers)
 			.then((response) => {
 				setData(response.data)
 			})
 			.catch((error) => {})
 	}, [])
 	const onSubmit = async (e) => {
-		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
 		e.preventDefault()
-		// This is body of the request, we can send it as a json object
 		const payload = {
 			episode_id: e.target.episode.value,
 		}
-
-		if (editingId) {
-			try {
-				await axios.patch(
-					`${process.env.REACT_APP_API_BASE_URL}/stream/${editingId}`,
-					payload,
-					headers
-				)
-				const episodes = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/stream",
-					headers
-				)
-				setData(episodes.data)
-				setEditingId(null)
-				// Clear the form
-				e.target.episode.value = ""
-			} catch (error) {
-				console.error("Error updating stream:", error)
+		try {
+			if (editingId) {
+				await axios.patch(`${apiUrl}/stream/${editingId}`, payload, headers)
+			} else {
+				await axios.post(`${apiUrl}/stream`, payload, headers)
 			}
-		} else {
-			try {
-				await axios
-					.post(process.env.REACT_APP_API_BASE_URL + "/stream", payload, headers)
-					.then(async (res) => {
-						// Once added, we need to get the list
-						const streamList = await axios.get(
-							process.env.REACT_APP_API_BASE_URL + "/stream",
-							headers
-						)
-						setData(streamList.data)
-					})
-					.catch((err) => {})
-					.finally(() => {
-						// This is to clear the form after submitting.
-						e.target.episode.value = ""
-					})
-			} catch (error) {
-				console.error("Error creating stream:", error)
-			}
+			const episodes = await axios.get(`${apiUrl}/stream`, headers)
+			setData(episodes.data)
+			setEditingId(null)
+			// Clear the form
+			e.target.episode.value = ""
+		} catch (error) {
+			console.error(`Error ${editingId ? "updating" : "creating"} stream:`, error)
 		}
 	}
 	const deleteById = async (id) => {
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/stream/${id}`, headers)
+			.delete(`${apiUrl}/stream/${id}`, headers)
 			.then(async (res) => {
-				const streamList = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/stream",
-					headers
-				)
+				const streamList = await axios.get(`${apiUrl}/stream`, headers)
 				setData(streamList.data)
 			})
 			.catch((err) => {})

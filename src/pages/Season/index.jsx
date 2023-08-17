@@ -20,6 +20,8 @@ function Season() {
 			Authorization: `bearer ${localStorage.getItem("token")}`,
 		},
 	}
+	const apiUrl = process.env.REACT_APP_API_BASE_URL
+
 	const handleChange = (event) => {
 		setSelectedValue(event.target.value)
 	}
@@ -27,13 +29,13 @@ function Season() {
 	const [series, setSeries] = React.useState([])
 	React.useEffect(() => {
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/series", headers)
+			.get(`${apiUrl}/series`, headers)
 			.then((response) => {
 				setSeries(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/season", headers)
+			.get(`${apiUrl}/season`, headers)
 			.then((response) => {
 				setData(response.data)
 			})
@@ -41,64 +43,36 @@ function Season() {
 	}, [])
 
 	const onSubmit = async (e) => {
-		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
 		e.preventDefault()
-		// This is body of the request, we can send it as a json object
 		const payload = {
 			name: e.target.name.value,
 			description: e.target.description.value,
 			series_id: e.target.series.value,
 		}
-		if (editingId) {
-			try {
-				await axios.patch(
-					`${process.env.REACT_APP_API_BASE_URL}/season/${editingId}`,
-					payload,
-					headers
-				)
-				const seasons = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/season",
-					headers
-				)
-				setData(seasons.data)
-				setEditingId(null)
-				e.target.name.value = "" // Clear the form
-				e.target.description.value = ""
-				setSelectedValue([""])
-			} catch (error) {
-				console.error("Error updating seasons:", error)
+
+		try {
+			if (editingId) {
+				await axios.patch(`${apiUrl}/season/${editingId}`, payload, headers)
+			} else {
+				await axios.post(`${apiUrl}/season`, payload, headers)
 			}
-		} else {
-			try {
-				await axios
-					.post(process.env.REACT_APP_API_BASE_URL + "/season", payload, headers)
-					.then(async (res) => {
-						const seasonList = await axios.get(
-							process.env.REACT_APP_API_BASE_URL + "/season",
-							headers
-						)
-						setData(seasonList.data)
-					})
-					.catch((err) => {})
-					.finally(() => {
-						// This is to clear the form after submitting.
-						e.target.name.value = ""
-						e.target.description.value = ""
-						e.target.series.value = ""
-					})
-			} catch (error) {
-				console.error("Error creating season:", error)
-			}
+			const seasons = await axios.get(`${apiUrl}/season`, headers)
+			setData(seasons.data)
+			setEditingId(null)
+			e.target.name.value = ""
+			e.target.description.value = ""
+			e.target.series.value = ""
+		} catch (error) {
+			console.error(`Error ${editingId ? "updating" : "creating"} season:`, error)
+		} finally {
+			// This is to clear the form after submitting.
 		}
 	}
 	const deleteById = async (id) => {
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/season/${id}`, headers)
+			.delete(`${apiUrl}/season/${id}`, headers)
 			.then(async (res) => {
-				const seasonList = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/season",
-					headers
-				)
+				const seasonList = await axios.get(`${apiUrl}/season`, headers)
 				setData(seasonList.data)
 			})
 			.catch((err) => {})

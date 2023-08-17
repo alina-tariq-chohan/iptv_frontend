@@ -27,17 +27,17 @@ function Series() {
 			Authorization: `bearer ${localStorage.getItem("token")}`,
 		},
 	}
+	const apiUrl = process.env.REACT_APP_API_BASE_URL
 
 	React.useEffect(() => {
-		// This is to get the list of s from the backend.
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/genre", headers)
+			.get(`${apiUrl}/genre`, headers)
 			.then((response) => {
 				setGenre(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/series", headers)
+			.get(`${apiUrl}/series`, headers)
 			.then((response) => {
 				setData(response.data)
 			})
@@ -45,71 +45,38 @@ function Series() {
 	}, [])
 
 	const onSubmit = async (e) => {
-		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
 		e.preventDefault()
-		// This is body of the request, we can send it as a json object
 		const payload = {
 			name: e.target.name.value,
 			description: e.target.description.value,
 			genres: e.target.genres.value.split(",").filter((i) => i),
 		}
-		if (editingId) {
-			try {
-				await axios.patch(
-					`${process.env.REACT_APP_API_BASE_URL}/series/${editingId}`,
-					payload,
-					headers
-				)
-				const series = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/series",
-					headers
-				)
-				setData(series.data)
-				setEditingId(null)
-				e.target.name.value = "" // Clear the form
-				e.target.description.value = ""
-				setSelectedValue([""])
-			} catch (error) {
-				console.error("Error updating series:", error)
+		try {
+			if (editingId) {
+				await axios.patch(`${apiUrl}/series/${editingId}`, payload, headers)
+			} else {
+				await axios.post(`${apiUrl}/series`, payload, headers).then(async (res) => {
+					const seriesList = await axios.get(`${apiUrl}/series`, headers)
+					const a = seriesList.data.map((i) => (i.genres = i.genres.name.join(", ")))
+					setData(a)
+				})
 			}
-		} else {
-			try {
-				await axios
-					.post(process.env.REACT_APP_API_BASE_URL + "/series", payload, headers)
-					.then(async (res) => {
-						// Once the series is added, we need to get the list of series
-						const seriesList = await axios.get(
-							process.env.REACT_APP_API_BASE_URL + "/series",
-							headers
-						)
-						// And render the list of series in the UI. I am reassigning the state with the new list of series
-						const a = seriesList.data.map((i) => (i.genres = i.genres.name.join(", ")))
-						setData(a)
-					})
-					.catch((err) => {})
-					.finally(() => {
-						// This is to clear the form after submitting.
-						e.target.name.value = ""
-						e.target.description.value = ""
-						e.target.genres.value = ""
-					})
-			} catch (error) {
-				console.error("Error creating genre:", error)
-			}
+			const series = await axios.get(`${apiUrl}/series`, headers)
+			setData(series.data)
+			setEditingId(null)
+			e.target.name.value = ""
+			e.target.description.value = ""
+			e.target.genres.value = ""
+		} catch (error) {
+			console.error(`Error ${editingId ? "updating" : "creating"} series:`, error)
 		}
 	}
 
 	const deleteSeries = async (id) => {
-		// This is to delete the series from the list.
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/series/${id}`, headers)
+			.delete(`${apiUrl}/series/${id}`, headers)
 			.then(async (res) => {
-				// Once the series is deleted, we need to get the list of series
-				const seriesList = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/series",
-					headers
-				)
-				// And render the list of series in the UI. I am reassigning the state with the new list of series
+				const seriesList = await axios.get(`${apiUrl}/series`, headers)
 				setData(seriesList.data)
 			})
 			.catch((err) => {})

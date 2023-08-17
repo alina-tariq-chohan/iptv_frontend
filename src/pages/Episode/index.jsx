@@ -23,86 +23,53 @@ function Episode() {
 			Authorization: `bearer ${localStorage.getItem("token")}`,
 		},
 	}
+	const apiUrl = process.env.REACT_APP_API_BASE_URL
+
 	const [data, setData] = React.useState([])
 	const [season, setSeason] = React.useState([])
 	React.useEffect(() => {
 		// This is to get the list of books from the backend.
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/season", headers)
+			.get(`${apiUrl}/season`, headers)
 			.then((response) => {
-				// Once we get the list of books, we need to set the state of the component with the list of books.
 				setSeason(response.data)
 			})
 			.catch((error) => {})
 		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/episode", headers)
+			.get(`${apiUrl}/episode`, headers)
 			.then((response) => {
-				// Once we get the list of books, we need to set the state of the component with the list of books.
 				setData(response.data)
 			})
 			.catch((error) => {})
 	}, [])
 	const onSubmit = async (e) => {
-		// e.preventDefault prevents page from refreshing when form is submitted (default behavior)
 		e.preventDefault()
-		// This is body of the request, we can send it as a json object
 		const payload = {
 			name: e.target.name.value,
 			description: e.target.description.value,
 			season_id: e.target.season.value,
 		}
-
-		if (editingId) {
-			try {
-				await axios.patch(
-					`${process.env.REACT_APP_API_BASE_URL}/episode/${editingId}`,
-					payload,
-					headers
-				)
-				const episodes = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/episode",
-					headers
-				)
-				setData(episodes.data)
-				setEditingId(null)
-				e.target.name.value = "" // Clear the form
-				e.target.description.value = ""
-				e.target.season.value = ""
-			} catch (error) {
-				console.error("Error updating episode:", error)
+		try {
+			if (editingId) {
+				await axios.patch(`${apiUrl}/episode/${editingId}`, payload, headers)
+			} else {
+				await axios.post(`${apiUrl}/episode`, payload, headers)
 			}
-		} else {
-			try {
-				await axios
-					.post(process.env.REACT_APP_API_BASE_URL + "/episode", payload, headers)
-					.then(async (res) => {
-						// Once added, we need to get the list
-						const episodeList = await axios.get(
-							process.env.REACT_APP_API_BASE_URL + "/episode",
-							headers
-						)
-						setData(episodeList.data)
-					})
-					.catch((err) => {})
-					.finally(() => {
-						// This is to clear the form after submitting.
-						e.target.name.value = ""
-						e.target.description.value = ""
-						e.target.season.value = ""
-					})
-			} catch (error) {
-				console.error("Error creating episode:", error)
-			}
+			const episodes = await axios.get(`${apiUrl}/episode`, headers)
+			setData(episodes.data)
+			setEditingId(null)
+			e.target.name.value = ""
+			e.target.description.value = ""
+			e.target.season.value = ""
+		} catch (error) {
+			console.error(`Error ${editingId ? "updating" : "creating"} episode:`, error)
 		}
 	}
 	const deleteById = async (id) => {
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/episode/${id}`, headers)
+			.delete(`${apiUrl}/episode/${id}`, headers)
 			.then(async (res) => {
-				const episodeList = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/episode",
-					headers
-				)
+				const episodeList = await axios.get(`${apiUrl}/episode`, headers)
 				setData(episodeList.data)
 			})
 			.catch((err) => {})

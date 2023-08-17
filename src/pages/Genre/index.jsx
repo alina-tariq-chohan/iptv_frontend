@@ -19,8 +19,10 @@ function Genre() {
 		},
 	}
 
+	const apiUrl = process.env.REACT_APP_API_BASE_URL
+
 	React.useEffect(() => {
-		axios.get(process.env.REACT_APP_API_BASE_URL + "/genre", headers).then((response) => {
+		axios.get(`${apiUrl}/genre`, headers).then((response) => {
 			setData(response.data)
 		})
 	}, [])
@@ -31,46 +33,27 @@ function Genre() {
 			name: e.target.name.value,
 		}
 
-		if (editingId) {
-			try {
-				await axios.patch(
-					`${process.env.REACT_APP_API_BASE_URL}/genre/${editingId}`,
-					payload,
-					headers
-				)
-				const genres = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/genre",
-					headers
-				)
-				setData(genres.data)
-				setEditingId(null)
-				e.target.name.value = "" // Clear the form
-			} catch (error) {
-				console.error("Error updating genre:", error)
+		try {
+			if (editingId) {
+				await axios.patch(`${apiUrl}/genre/${editingId}`, payload, headers)
+			} else {
+				await axios.post(`${apiUrl}/genre`, payload, headers)
 			}
-		} else {
-			try {
-				await axios.post(process.env.REACT_APP_API_BASE_URL + "/genre", payload, headers)
-				const genres = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/genre",
-					headers
-				)
-				setData(genres.data)
-				e.target.name.value = "" // Clear the form
-			} catch (error) {
-				console.error("Error creating genre:", error)
-			}
+
+			const genresResponse = await axios.get(`${apiUrl}/genre`, headers)
+			setData(genresResponse.data)
+			setEditingId(null)
+			e.target.name.value = "" // Clear the form
+		} catch (error) {
+			console.error(`Error ${editingId ? "updating" : "creating"} genre:`, error)
 		}
 	}
 
 	const deleteGenre = async (id) => {
 		axios
-			.delete(`${process.env.REACT_APP_API_BASE_URL}/genre/${id}`, headers)
+			.delete(`${apiUrl}/genre/${id}`, headers)
 			.then(async (res) => {
-				const genres = await axios.get(
-					process.env.REACT_APP_API_BASE_URL + "/genre",
-					headers
-				)
+				const genres = await axios.get(`${apiUrl}/genre`, headers)
 				setData(genres.data)
 			})
 			.catch((err) => {})
