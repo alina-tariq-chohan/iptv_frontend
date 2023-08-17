@@ -1,8 +1,10 @@
 import "./App.css"
 import axios from "axios"
 import React from "react"
+import Pencil from "assets/icons/Pencil"
+import Trash from "assets/icons/Trash"
 import { TextField, Button as MuiButton } from "@material-ui/core"
-import { Table, Row, Col, Button as AntDButton } from "antd"
+import { Table, Popconfirm, Row, Col, Button as AntDButton } from "antd"
 import Logout from "components/shared/Logout"
 // import { TopHeaderLeftSide } from "pages/Add/styles"
 // import { HomeWrapper, ActionButtonWrapper, SearchInput, ProjectStatus } from "./styles"git push -u
@@ -98,11 +100,17 @@ function Genre() {
 						onClick={() => editGenre(record._id)}
 						style={{ marginRight: "8px" }}
 					>
-						Edit
+						<Pencil width={20} />
 					</AntDButton>
-					<AntDButton color="primary" onClick={() => deleteGenre(record._id)}>
-						Delete
-					</AntDButton>
+					<Popconfirm
+						title="Permanently delete this genre?"
+						okText="Delete"
+						onConfirm={() => deleteGenre(record._id)}
+					>
+						<AntDButton color="primary">
+							<Trash width={20} />
+						</AntDButton>
+					</Popconfirm>
 				</>
 			),
 		},

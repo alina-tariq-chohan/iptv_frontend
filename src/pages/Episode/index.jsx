@@ -1,9 +1,12 @@
 import "./App.css"
 import axios from "axios"
+import Pencil from "assets/icons/Pencil"
+import Trash from "assets/icons/Trash"
 import { TextField, Button as MuiButton, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Tag, Button as AntDButton } from "antd"
+import { Table, Tag, Popconfirm, Row, Col, Button as AntDButton } from "antd"
 import React, { useState } from "react"
+import Logout from "components/shared/Logout"
 
 function Episode() {
 	const [selectedValue, setSelectedValue] = useState([""])
@@ -73,7 +76,7 @@ function Episode() {
 				await axios
 					.post(process.env.REACT_APP_API_BASE_URL + "/episode", payload, headers)
 					.then(async (res) => {
-						// Once the book is added, we need to get the list of books
+						// Once added, we need to get the list
 						const episodeList = await axios.get(
 							process.env.REACT_APP_API_BASE_URL + "/episode",
 							headers
@@ -93,16 +96,13 @@ function Episode() {
 		}
 	}
 	const deleteById = async (id) => {
-		// This is to delete the book from the list.
 		axios
 			.delete(`${process.env.REACT_APP_API_BASE_URL}/episode/${id}`, headers)
 			.then(async (res) => {
-				// Once the book is deleted, we need to get the list of books
 				const episodeList = await axios.get(
 					process.env.REACT_APP_API_BASE_URL + "/episode",
 					headers
 				)
-				// And render the list of books in the UI. I am reassigning the state with the new list of books
 				setData(episodeList.data)
 			})
 			.catch((err) => {})
@@ -114,7 +114,7 @@ function Episode() {
 			setEditingId(id)
 			setName(episodeToEdit.name)
 			setDescription(episodeToEdit.description)
-			setSelectedValue(episodeToEdit.episode_id)
+			setSelectedValue(episodeToEdit.season_id)
 		}
 	}
 
@@ -149,11 +149,17 @@ function Episode() {
 						onClick={() => editEpisode(record._id)}
 						style={{ marginRight: "8px" }}
 					>
-						Edit
+						<Pencil width={20} />
 					</AntDButton>
-					<AntDButton color="primary" onClick={() => deleteById(record._id)}>
-						Delete
-					</AntDButton>
+					<Popconfirm
+						title="Permanently delete this episode?"
+						okText="Delete"
+						onConfirm={() => deleteById(record._id)}
+					>
+						<AntDButton color="primary">
+							<Trash width={20} />
+						</AntDButton>
+					</Popconfirm>
 				</>
 			),
 		},
@@ -169,6 +175,15 @@ function Episode() {
 	}
 	return (
 		<div>
+			<Row justify="end">
+				<Col style={{ marginRight: 30 }}>
+					{/* <TopHeaderLeftSide> */}
+					<div>
+						<Logout />
+					</div>
+					{/* </TopHeaderLeftSide> */}
+				</Col>
+			</Row>
 			<div style={{ marginTop: "30px" }} />
 			<Table columns={columns} dataSource={data} />
 			<form onSubmit={onSubmit}>
@@ -189,7 +204,7 @@ function Episode() {
 					variant="outlined"
 					name="description"
 					value={description}
-					onChange={(e) => setDescription(e.target.description.value)}
+					onChange={(e) => setDescription(e.target.description)}
 					required
 				/>
 				<Select

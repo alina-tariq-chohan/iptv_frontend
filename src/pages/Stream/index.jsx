@@ -1,9 +1,12 @@
 import "./App.css"
 import axios from "axios"
+import Pencil from "assets/icons/Pencil"
+import Trash from "assets/icons/Trash"
 import { Button as MuiButton, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Tag, Button as AntDButton } from "antd"
+import { Table, Tag, Popconfirm, Row, Col, Button as AntDButton } from "antd"
 import React, { useState } from "react"
+import Logout from "components/shared/Logout"
 
 function Stream() {
 	const [selectedValue, setSelectedValue] = useState([""])
@@ -40,21 +43,46 @@ function Stream() {
 		const payload = {
 			episode_id: e.target.episode.value,
 		}
-		axios
-			.post(process.env.REACT_APP_API_BASE_URL + "/stream", payload, headers)
-			.then(async (res) => {
-				// Once the book is added, we need to get the list of books
-				const streamList = await axios.get(
+
+		if (editingId) {
+			try {
+				await axios.patch(
+					`${process.env.REACT_APP_API_BASE_URL}/stream/${editingId}`,
+					payload,
+					headers
+				)
+				const episodes = await axios.get(
 					process.env.REACT_APP_API_BASE_URL + "/stream",
 					headers
 				)
-				setData(streamList.data)
-			})
-			.catch((err) => {})
-			.finally(() => {
-				// This is to clear the form after submitting.
+				setData(episodes.data)
+				setEditingId(null)
+				// Clear the form
 				e.target.episode.value = ""
-			})
+			} catch (error) {
+				console.error("Error updating stream:", error)
+			}
+		} else {
+			try {
+				await axios
+					.post(process.env.REACT_APP_API_BASE_URL + "/stream", payload, headers)
+					.then(async (res) => {
+						// Once added, we need to get the list
+						const streamList = await axios.get(
+							process.env.REACT_APP_API_BASE_URL + "/stream",
+							headers
+						)
+						setData(streamList.data)
+					})
+					.catch((err) => {})
+					.finally(() => {
+						// This is to clear the form after submitting.
+						e.target.episode.value = ""
+					})
+			} catch (error) {
+				console.error("Error creating stream:", error)
+			}
+		}
 	}
 	const deleteById = async (id) => {
 		// This is to delete the book from the list.
@@ -101,11 +129,17 @@ function Stream() {
 						onClick={() => editStream(record._id)}
 						style={{ marginRight: "8px" }}
 					>
-						Edit
+						<Pencil width={20} />
 					</AntDButton>
-					<AntDButton color="primary" onClick={() => deleteById(record._id)}>
-						Delete
-					</AntDButton>
+					<Popconfirm
+						title="Permanently delete this genre?"
+						okText="Delete"
+						onConfirm={() => deleteById(record._id)}
+					>
+						<AntDButton color="primary">
+							<Trash width={20} />
+						</AntDButton>
+					</Popconfirm>
 				</>
 			),
 		},
@@ -121,6 +155,15 @@ function Stream() {
 	}
 	return (
 		<div>
+			<Row justify="end">
+				<Col style={{ marginRight: 30 }}>
+					{/* <TopHeaderLeftSide> */}
+					<div>
+						<Logout />
+					</div>
+					{/* </TopHeaderLeftSide> */}
+				</Col>
+			</Row>
 			<div style={{ marginTop: "30px" }} />
 			<Table columns={columns} dataSource={data} />
 			<form onSubmit={onSubmit}>

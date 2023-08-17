@@ -1,9 +1,12 @@
 import "./App.css"
 import axios from "axios"
+import Pencil from "assets/icons/Pencil"
+import Trash from "assets/icons/Trash"
 import { TextField, Button as MuiButton, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Tag, Button as AntDButton } from "antd"
+import { Table, Tag, Popconfirm, Row, Col, Button as AntDButton } from "antd"
 import React, { useState } from "react"
+import Logout from "components/shared/Logout"
 
 function Season() {
 	const [selectedValue, setSelectedValue] = useState([""])
@@ -61,7 +64,7 @@ function Season() {
 				setEditingId(null)
 				e.target.name.value = "" // Clear the form
 				e.target.description.value = ""
-				e.target.series.value = ""
+				setSelectedValue([""])
 			} catch (error) {
 				console.error("Error updating seasons:", error)
 			}
@@ -142,11 +145,17 @@ function Season() {
 						onClick={() => editSeason(record._id)}
 						style={{ marginRight: "8px" }}
 					>
-						Edit
+						<Pencil width={20} />
 					</AntDButton>
-					<AntDButton color="primary" onClick={() => deleteById(record._id)}>
-						Delete
-					</AntDButton>
+					<Popconfirm
+						title="Permanently delete this season?"
+						okText="Delete"
+						onConfirm={() => deleteById(record._id)}
+					>
+						<AntDButton color="primary">
+							<Trash width={20} />
+						</AntDButton>
+					</Popconfirm>
 				</>
 			),
 		},
@@ -162,6 +171,15 @@ function Season() {
 	}
 	return (
 		<div>
+			<Row justify="end">
+				<Col style={{ marginRight: 30 }}>
+					{/* <TopHeaderLeftSide> */}
+					<div>
+						<Logout />
+					</div>
+					{/* </TopHeaderLeftSide> */}
+				</Col>
+			</Row>
 			<div style={{ marginTop: "30px" }} />
 			<Table columns={columns} dataSource={data} />
 			<form onSubmit={onSubmit}>

@@ -1,9 +1,12 @@
 import "./App.css"
 import axios from "axios"
+import Pencil from "assets/icons/Pencil"
+import Trash from "assets/icons/Trash"
 import { TextField, Button as MuiButton, InputLabel, Select, MenuItem } from "@material-ui/core"
 // import "antd/dist/antd.css"
-import { Table, Button as AntDButton, Tag } from "antd"
+import { Table, Popconfirm, Row, Col, Button as AntDButton, Tag } from "antd"
 import React, { useState } from "react"
+import Logout from "components/shared/Logout"
 
 function Series() {
 	const [selectedValue, setSelectedValue] = useState([""])
@@ -157,11 +160,17 @@ function Series() {
 						onClick={() => editSeries(record._id)}
 						style={{ marginRight: "8px" }}
 					>
-						Edit
+						<Pencil width={20} />
 					</AntDButton>
-					<AntDButton color="primary" onClick={() => deleteSeries(record._id)}>
-						Delete
-					</AntDButton>
+					<Popconfirm
+						title="Permanently delete this series?"
+						okText="Delete"
+						onConfirm={() => deleteSeries(record._id)}
+					>
+						<AntDButton color="primary">
+							<Trash width={20} />
+						</AntDButton>
+					</Popconfirm>
 				</>
 			),
 		},
@@ -179,6 +188,15 @@ function Series() {
 
 	return (
 		<div>
+			<Row justify="end">
+				<Col style={{ marginRight: 30 }}>
+					{/* <TopHeaderLeftSide> */}
+					<div>
+						<Logout />
+					</div>
+					{/* </TopHeaderLeftSide> */}
+				</Col>
+			</Row>
 			<div style={{ marginTop: "30px" }} />
 			<Table columns={columns} dataSource={data} />
 
