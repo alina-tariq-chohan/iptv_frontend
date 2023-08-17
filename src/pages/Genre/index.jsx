@@ -130,11 +130,9 @@ function Genre() {
 		<div>
 			<Row justify="end">
 				<Col style={{ marginRight: 30 }}>
-					{/* <TopHeaderLeftSide> */}
 					<div>
 						<Logout />
 					</div>
-					{/* </TopHeaderLeftSide> */}
 				</Col>
 			</Row>
 			<div style={{ marginTop: "30px" }} />

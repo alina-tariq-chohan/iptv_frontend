@@ -85,16 +85,13 @@ function Stream() {
 		}
 	}
 	const deleteById = async (id) => {
-		// This is to delete the book from the list.
 		axios
 			.delete(`${process.env.REACT_APP_API_BASE_URL}/stream/${id}`, headers)
 			.then(async (res) => {
-				// Once the book is deleted, we need to get the list of books
 				const streamList = await axios.get(
 					process.env.REACT_APP_API_BASE_URL + "/stream",
 					headers
 				)
-				// And render the list of books in the UI. I am reassigning the state with the new list of books
 				setData(streamList.data)
 			})
 			.catch((err) => {})
@@ -157,11 +154,9 @@ function Stream() {
 		<div>
 			<Row justify="end">
 				<Col style={{ marginRight: 30 }}>
-					{/* <TopHeaderLeftSide> */}
 					<div>
 						<Logout />
 					</div>
-					{/* </TopHeaderLeftSide> */}
 				</Col>
 			</Row>
 			<div style={{ marginTop: "30px" }} />
